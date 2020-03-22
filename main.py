@@ -12,4 +12,4 @@ if(dev==0):
         m_main_menu.show()
 else:
     web_driver.get_excel()
-    input("Presione cualquier tecla para continuar")
+    input("Presione cualquier tecla para continuar...")
