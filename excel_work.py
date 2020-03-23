@@ -1,50 +1,102 @@
-import xlrd, xlwt
+import xlwt
 import io
-from itertools import groupby
+from datetime import datetime
 
-class product:
+class order_product:
     def __init__(self, n_orden_compra, fecha_emision, fecha_entrega, ce_co, rut_proveedor, cod_sap,
                  descripcion, glosa, unidad, cantidad, precio_unitario,
                  subtotal):
 
-        self.n_orden_compra = n_orden_compra
+        self.n_orden_compra = (n_orden_compra)
         self.fecha_emision = fecha_emision
-        self.fecha_entrega = fecha_entrega
+        self.fecha_entrega = datetime.strptime(fecha_entrega, '%d-%m-%Y')
         self.ce_co = ce_co
         self.rut_proveedor = rut_proveedor
         self.cod_sap = cod_sap
-        self. descripcion = descripcion
-        self. glosa = glosa
+        self.descripcion = descripcion
+        self.glosa = glosa
         self.unidad = unidad
         self.cantidad = cantidad.replace('.','').replace(',','.')
         self.precio_unitario = precio_unitario.replace('.','').replace(',','.')
         self.subtotal = float(subtotal.replace('.','').replace(',','.'))
 
-data = io.open('data/data.xls', 'r', encoding="utf-16")
-data = data.readlines()[12:]
+class order:
+    def __init__(self, n_order_id, product_list):
+        self.n_order_id = n_order_id
+        self.products = product_list
 
-destino = xlwt.Workbook()
-sheet1 = destino.add_sheet("Home")
+def retrieve_data():
 
-columns = [0,5,6,7,8,10,11,12,13,14,16,19]
+    # retrieve data from xls file
+    data = io.open('data/data.xls', 'r', encoding="utf-16")
+    data = data.readlines()[12:]
 
-product_list = []
+    order_product_list = []
 
-for row, row_index in zip(data, range(len(data))):
-    xls_row = sheet1.row(row_index)
-    row_array = row.strip().split('\t')
-    r = row_array
+    for row  in data:
+        row_array = row.strip().split('\t')
 
-    if(len(r)>= 23 and r[0] != 'N OC'):
-        # print(len(r))
-        product_list.append(product(r[0],r[5],r[6],r[7],r[8],r[10],r[11],r[12],r[13],r[14], r[16], r[19]))
+        if(len(row_array)>= 23 and row_array[0] != 'N OC'):
+            order_product_list.append(order_product(row_array[0], row_array[5], row_array[6], row_array[7], row_array[8], row_array[10],
+                                              row_array[11], row_array[12], row_array[13], row_array[14], row_array[16], row_array[19]))
 
-        column_counter = 0
-        for column, column_index in zip(row_array, range(len(row_array))):
-            if column_index in columns:
-                xls_row.write(column_counter, column)
+    return order_product_list
 
-                column_counter += 1
+def sort_by_date(order_product_list):
 
-for item in product_list:
-    print("detalle: {},\t{} {}".format(item.descripcion, str((item.subtotal)), item.unidad))
+    current_date = datetime.now().date()
+    current_year = current_date.year
+    current_month = current_date.month
+
+    sorted_by_date = (list(sorted(order_product_list, key=lambda x: x.fecha_entrega)))
+    filtered_next_week = list(filter(lambda x: datetime.strftime(x.fecha_entrega, "%W") == str(int(datetime.strftime(datetime.now(), "%W")) + 1), sorted_by_date))
+
+    # Separated by day of the week
+    splited = []
+    for day_of_week in range(7):
+        day = list(filter(lambda x: x.fecha_entrega.isoweekday() == day_of_week + 1, filtered_next_week))
+        splited.append(day)
+
+    return splited
+
+def format_excel_sheet(sorted_data):
+
+    book = xlwt.Workbook('data/output.xsl')
+
+    for daily_data, day_of_week in zip(sorted_data, range(len(sorted_data))):
+
+            # group by order number
+            order_id_list = list(map(lambda x: x.n_orden_compra, daily_data))
+            order_id_list = list(dict.fromkeys(order_id_list))
+            print(order_id_list)
+
+            order_list = []
+            for order_id in order_id_list:
+                product_list = list(filter(lambda x: x.n_orden_compra == order_id, daily_data))
+                order_list.append(order(order_id, product_list))
+
+
+            current_sheet = book.add_sheet('{}'.format(day_of_week))
+
+            row_counter = 0
+            # separate by white cell each order
+            for n in order_list:
+                for i in n.products:
+                    row = current_sheet.row(row_counter)
+                    headers = [i.n_orden_compra, i.fecha_emision, i.fecha_entrega, i.ce_co,
+                                i.rut_proveedor, i.cod_sap, i.descripcion, i.glosa, i.unidad,
+                                i.cantidad, i.precio_unitario, i.subtotal]
+
+                    for header, index in zip(headers, range(len(headers))):
+                        row.write(index, header)
+                    row_counter += 1
+                row_counter += 1
+
+    book.save('data/output.xls')
+
+
+
+data = retrieve_data()
+sorted_data = sort_by_date(data)
+format_excel_sheet(sorted_data)
+
