@@ -1,5 +1,4 @@
-import xlwt
-import io
+import io, sys, xlwt, os
 from datetime import datetime
 
 class order_product:
@@ -25,10 +24,18 @@ class order:
         self.n_order_id = n_order_id
         self.products = product_list
 
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.dirname(__file__)
+    return os.path.join(base_path, relative_path)
+
 def retrieve_data():
 
     # retrieve data from xls file
-    data = io.open('data/data.xls', 'r', encoding="utf-16")
+    data = io.open(('data/data.xls'), 'r', encoding="utf-16")
     data = data.readlines()[12:]
 
     order_product_list = []
@@ -59,9 +66,17 @@ def sort_by_date(order_product_list):
 
     return splited
 
+def rename_file():
+
+    os.chdir('data')
+    for item in os.listdir():
+        os.rename(item, 'data.xls')
+    os.chdir('..')
+
+
 def format_excel_sheet(sorted_data):
 
-    book = xlwt.Workbook('data/output.xsl')
+    book = xlwt.Workbook(('data/output.xsl'))
 
     for daily_data, day_of_week in zip(sorted_data, range(len(sorted_data))):
 
@@ -77,6 +92,7 @@ def format_excel_sheet(sorted_data):
 
 
             current_sheet = book.add_sheet('{}'.format(day_of_week))
+            elements_glosa = []
 
             row_counter = 1
             # separate by white cell each order
@@ -87,24 +103,38 @@ def format_excel_sheet(sorted_data):
                                datetime.strftime(i.fecha_entrega, '%d-%m-%Y'), i.ce_co, i.rut_proveedor,
                                i.cod_sap, i.descripcion, i.glosa, i.unidad, i.cantidad, i.precio_unitario, i.subtotal]
 
+
+                    if(i.glosa != ""):
+                        elements_glosa.append(i)
+
                     for header, index in zip(headers, range(len(headers))):
                         row.write(index, header)
                     row_counter += 1
+
                 row_counter += 1
 
             headers = ['NOC', 'Fecha Emision', 'Fecha Entrega', 'CeCo', 'Rut Proveedor', 'Cod Sap',
                            'Descripcion', 'Glosa', 'Unidad', 'Cantidad', 'Prec. Unit.', 'Sub Total']
+
+            row_counter += 1
+            for element in elements_glosa:
+                row = current_sheet.row(row_counter)
+                row.write(0,element.n_orden_compra)
+                row.write(1,element.glosa)
+                row_counter += 1
 
             row = current_sheet.row(0)
             for header, index in zip(headers, range(len(headers))):
                 row.write(index, header)
 
 
-    book.save('data/output.xls')
 
 
+    book.save(('data/output.xls'))
 
-data = retrieve_data()
-sorted_data = sort_by_date(data)
-format_excel_sheet(sorted_data)
 
+def begin():
+    rename_file()
+    data = retrieve_data()
+    sorted_data = sort_by_date(data)
+    format_excel_sheet(sorted_data)

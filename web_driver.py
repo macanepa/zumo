@@ -6,11 +6,18 @@ from datetime import datetime, timedelta
 
 def connect_website(url):
 
+    cwd = os.getcwd()+"\\data"
+    print("CWD:", cwd)
+    chrome_options = webdriver.ChromeOptions()
+    prefs = {'download.default_directory': '{}'.format(cwd)}
+    chrome_options.add_experimental_option('prefs', prefs)
+    options = chrome_options
+
     if getattr(sys, 'frozen', False):
         chromedriver_path = os.path.join(sys._MEIPASS, "chromedriver.exe")
-        driver = webdriver.Chrome(chromedriver_path)
+        driver = webdriver.Chrome(options=options, executable_path=chromedriver_path)
     else:
-        driver = webdriver.Chrome()
+        driver = webdriver.Chrome(options=options)
 
     return driver
 
@@ -31,6 +38,14 @@ def date_calculate():
     date = datetime.now().date().replace(day=1) - timedelta(days=1)
     date = date.replace(day=1)
     return date.strftime("%d-%m-%Y")
+
+def clear_folder():
+    os.chdir('data')
+    #Clear folder
+    for item in os.listdir():
+        os.remove(item)
+    os.chdir('..')
+
 
 def get_excel():
 
@@ -65,6 +80,11 @@ def get_excel():
 
     driver.switch_to.alert.accept()
 
+    clear_folder()
+
     excel_download_button = driver.find_element_by_id("lnkExcel")
     excel_download_button.click()
+
+
+    driver.close()
 
