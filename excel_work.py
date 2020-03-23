@@ -8,7 +8,7 @@ class order_product:
                  subtotal):
 
         self.n_orden_compra = (n_orden_compra)
-        self.fecha_emision = fecha_emision
+        self.fecha_emision = datetime.strptime(fecha_emision, '%d-%m-%Y')
         self.fecha_entrega = datetime.strptime(fecha_entrega, '%d-%m-%Y')
         self.ce_co = ce_co
         self.rut_proveedor = rut_proveedor
@@ -78,19 +78,27 @@ def format_excel_sheet(sorted_data):
 
             current_sheet = book.add_sheet('{}'.format(day_of_week))
 
-            row_counter = 0
+            row_counter = 1
             # separate by white cell each order
             for n in order_list:
                 for i in n.products:
                     row = current_sheet.row(row_counter)
-                    headers = [i.n_orden_compra, i.fecha_emision, i.fecha_entrega, i.ce_co,
-                                i.rut_proveedor, i.cod_sap, i.descripcion, i.glosa, i.unidad,
-                                i.cantidad, i.precio_unitario, i.subtotal]
+                    headers = [i.n_orden_compra, datetime.strftime(i.fecha_emision, '%d-%m-%Y'),
+                               datetime.strftime(i.fecha_entrega, '%d-%m-%Y'), i.ce_co, i.rut_proveedor,
+                               i.cod_sap, i.descripcion, i.glosa, i.unidad, i.cantidad, i.precio_unitario, i.subtotal]
 
                     for header, index in zip(headers, range(len(headers))):
                         row.write(index, header)
                     row_counter += 1
                 row_counter += 1
+
+            headers = ['NOC', 'Fecha Emision', 'Fecha Entrega', 'CeCo', 'Rut Proveedor', 'Cod Sap',
+                           'Descripcion', 'Glosa', 'Unidad', 'Cantidad', 'Prec. Unit.', 'Sub Total']
+
+            row = current_sheet.row(0)
+            for header, index in zip(headers, range(len(headers))):
+                row.write(index, header)
+
 
     book.save('data/output.xls')
 
