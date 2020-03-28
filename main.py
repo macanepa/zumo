@@ -18,7 +18,7 @@ def load_config():
 
     directory = os.getcwd() + "\\zumo.json"
     if not os.path.isfile(directory):
-        print("{}Creating File: {}{}{}{}".format(bcolors.FAIL, bcolors.ENDC, bcolors.WARNING, directory, bcolors.ENDC))
+        print("Creating File: {}".format(directory))
         config = {
             "save_directory": "{}\\PRECIOS COMPRA VENTA.xlsx".format(os.getcwd())
         }
@@ -27,8 +27,7 @@ def load_config():
             json.dump(config, config_file)
     with open("zumo.json", "r") as config_file:
         data = json.load(config_file)
-        dir = data["save_directory"]
-        print("{}loaded: {}{}{}{}".format(bcolors.OKBLUE, bcolors.ENDC, bcolors.WARNING, config_file.name, bcolors.ENDC))
+        print("loaded: {}".format(config_file.name))
 
 
 
