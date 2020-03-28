@@ -8,6 +8,7 @@ __pycache__/
 
 #idea
 .idea
+build_code/
 
 # Distribution / packaging
 .Python

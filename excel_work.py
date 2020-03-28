@@ -1,5 +1,5 @@
 import io, sys, xlwt, os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class order_product:
     def __init__(self, n_orden_compra, fecha_emision, fecha_entrega, ce_co, rut_proveedor, cod_sap,
@@ -15,8 +15,8 @@ class order_product:
         self.descripcion = descripcion
         self.glosa = glosa
         self.unidad = unidad
-        self.cantidad = cantidad.replace('.','').replace(',','.')
-        self.precio_unitario = precio_unitario.replace('.','').replace(',','.')
+        self.cantidad = float(cantidad.replace('.','').replace(',','.'))
+        self.precio_unitario = float(precio_unitario.replace('.','').replace(',','.'))
         self.subtotal = float(subtotal.replace('.','').replace(',','.'))
 
 class order:
@@ -24,6 +24,18 @@ class order:
         self.n_order_id = n_order_id
         self.products = product_list
 
+
+def get_dates_of_week():
+    today = datetime.now().date() + timedelta(days=7)
+    cant_days = today.weekday()
+    start_date = today - timedelta(days=cant_days)
+    list_days = []
+
+    for day in range(7):
+        week_day = start_date + timedelta(days=day)
+        list_days.append(datetime.strftime(week_day, "%d-%b-%Y"))
+
+    return list_days
 
 def resource_path(relative_path):
     try:
@@ -35,8 +47,11 @@ def resource_path(relative_path):
 def retrieve_data():
 
     # retrieve data from xls file
-    data = io.open(('data/data.xls'), 'r', encoding="utf-16")
-    data = data.readlines()[12:]
+    data_path = 'data/data.xls'
+    data_file = io.open((data_path), 'r', encoding="utf-16")
+    data = data_file.readlines()[12:]
+    data_file.close()
+    os.remove(data_path)
 
     order_product_list = []
 
@@ -73,11 +88,10 @@ def rename_file():
         os.rename(item, 'data.xls')
     os.chdir('..')
 
-
 def format_excel_sheet(sorted_data):
 
     book = xlwt.Workbook(('data/output.xsl'))
-
+    next_week_dates = get_dates_of_week()
     for daily_data, day_of_week in zip(sorted_data, range(len(sorted_data))):
 
             # group by order number
@@ -91,7 +105,7 @@ def format_excel_sheet(sorted_data):
                 order_list.append(order(order_id, product_list))
 
 
-            current_sheet = book.add_sheet('{}'.format(day_of_week))
+            current_sheet = book.add_sheet('{}'.format(next_week_dates[day_of_week]))
             elements_glosa = []
 
             row_counter = 1
@@ -126,8 +140,6 @@ def format_excel_sheet(sorted_data):
             row = current_sheet.row(0)
             for header, index in zip(headers, range(len(headers))):
                 row.write(index, header)
-
-
 
 
     book.save(('data/output.xls'))

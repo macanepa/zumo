@@ -11,6 +11,7 @@ def connect_website(url):
     chrome_options = webdriver.ChromeOptions()
     prefs = {'download.default_directory': '{}'.format(cwd)}
     chrome_options.add_experimental_option('prefs', prefs)
+    # chrome_options.add_argument("headless")
     options = chrome_options
 
     if getattr(sys, 'frozen', False):
@@ -46,11 +47,12 @@ def clear_folder():
         os.remove(item)
     os.chdir('..')
 
-
 def get_excel():
 
     #Login to sodexo
     username, organization, password = get_credentials()
+
+    print("Login Screen")
 
     url = "https://sodexo.iconstruye.com/"
     driver = connect_website(url)
@@ -69,6 +71,8 @@ def get_excel():
     url = "https://sodexo.iconstruye.com/Reportes/compra/producto_detallado_proveedor.aspx"
     driver.get(url)
 
+    time.sleep(1)
+
     start_date = driver.find_element_by_id("ctrRangoFechaDespachoFECHADESDE")
     driver.execute_script("arguments[0].setAttribute(arguments[1], arguments[2]);",
                           start_date,
@@ -77,6 +81,8 @@ def get_excel():
 
     search_button = driver.find_element_by_id("btnBuscar")
     search_button.click()
+
+    print("Login Successful")
 
     driver.switch_to.alert.accept()
 
