@@ -9,6 +9,9 @@ __pycache__/
 #idea
 .idea
 build_code/
+todo.txt
+data
+zumo.json
 
 # Distribution / packaging
 .Python
