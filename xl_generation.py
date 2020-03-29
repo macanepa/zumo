@@ -1,5 +1,6 @@
-import io, sys, xlwt, xlrd, os, json
 from datetime import datetime, timedelta
+import io, xlwt, xlrd, os, utilities
+import mcutils as mc
 
 
 class order_product:
@@ -29,28 +30,20 @@ class order:
 
 def get_dates_of_week():
     today = datetime.now().date() + timedelta(days=7)
-    cant_days = today.weekday()
-    start_date = today - timedelta(days=cant_days)
-    list_days = []
+    start_date = today - timedelta(days=today.weekday())
 
+    week_days = []
     for day in range(7):
         week_day = start_date + timedelta(days=day)
-        list_days.append(datetime.strftime(week_day, "%d-%b-%Y"))
+        week_days.append(datetime.strftime(week_day, "%d-%b-%Y"))
 
-    return list_days
+    return week_days
 
-def resource_path(relative_path):
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.dirname(__file__)
-    return os.path.join(base_path, relative_path)
-
-def get_prices():
-
-    with open("zumo.json", "r") as config_file:
-        data = json.load(config_file)
-        path = data["save_directory"]
+def get_sale_prices():
+    data = utilities.get_json()
+    path = data["precios_compra_venta_file"]
+    if not os.path.isfile(path):
+        mc.exit_application(text="No se ha encontrado el archivo {}".format(path))
 
     workbook = xlrd.open_workbook(path)
     current_sheet = workbook.sheet_by_index(0)
@@ -64,46 +57,47 @@ def get_prices():
         price = int(row[4].value)
         row = current_sheet.row(current_row)
         dict[id] = price
-
         current_row += 1
 
     return dict
 
 
+def get_latest_file(directory):
+    dir_list = []
+    for file in os.listdir(directory):
+        dir_list.append(os.path.join(directory, file))
+
+    if len(dir_list) == 0:
+        mc.exit_application(text="No data files found at {}".format(directory))
+
+    latest_file_path = max(dir_list, key=os.path.getmtime)
+    return latest_file_path
+
+
 def retrieve_data():
-
-    precios_venta = get_prices()
-
+    sale_prices = get_sale_prices()
 
     # retrieve data from xls file
-    data_path = 'data/data.xls'
+    downloads_directory = utilities.get_json()["downloads_directory"]
+    data_path = get_latest_file(downloads_directory)
     data_file = io.open((data_path), 'r', encoding="utf-16")
     data = data_file.readlines()[12:]
     data_file.close()
-    os.remove(data_path)
 
     order_product_list = []
-    s_precios_venta = 0
-
     for row  in data:
         row_array = row.strip().split('\t')
-
-
         if(len(row_array)>= 23 and row_array[0] != 'N OC'):
-            if precios_venta.get(str(row_array[10])) != None:
-                s_precio_compra = precios_venta["{}".format(row_array[10])]
+            temp_precio_compra = 0
+            if sale_prices.get(str(row_array[10])) != None:
+                temp_precio_compra = sale_prices["{}".format(row_array[10])]
 
             order_product_list.append(order_product(row_array[0], row_array[5], row_array[6], row_array[7], row_array[8], row_array[10],
-                                              row_array[11], row_array[12], row_array[13], row_array[14], row_array[16], row_array[19], s_precio_compra))
+                                                    row_array[11], row_array[12], row_array[13], row_array[14], row_array[16], row_array[19], temp_precio_compra))
 
     return order_product_list
 
 def sort_by_date(order_product_list):
-
-    current_date = datetime.now().date()
-    current_year = current_date.year
-    current_month = current_date.month
-
     sorted_by_date = (list(sorted(order_product_list, key=lambda x: x.fecha_entrega)))
     filtered_next_week = list(filter(lambda x: datetime.strftime(x.fecha_entrega, "%W") == str(int(datetime.strftime(datetime.now(), "%W")) + 1), sorted_by_date))
 
@@ -115,19 +109,12 @@ def sort_by_date(order_product_list):
 
     return splited
 
-def rename_file():
-
-    os.chdir('data')
-    for item in os.listdir():
-        os.rename(item, 'data.xls')
-    os.chdir('..')
-
 def get_width(num_characters):
     return int((1+num_characters) * 275)
 
 def format_excel_sheet(sorted_data):
 
-    book = xlwt.Workbook(('data/output.xsl'))
+    book = xlwt.Workbook('output/output.xsl')
     next_week_dates = get_dates_of_week()
     max_char = {}
 
@@ -201,13 +188,13 @@ def format_excel_sheet(sorted_data):
                 col = current_sheet.col(i)
                 col.width = 1000
 
-
-
-    book.save(('data/output.xls'))
-
+    current_time = datetime.now()
+    file_name = datetime.strftime(current_time, "output %d%m%Y %H%M%S.xls")
+    save_path = os.path.join(utilities.get_json()["output_directory"], file_name)
+    book.save(save_path)
+    print("output file saved at: {}".format(save_path))
 
 def begin():
-    rename_file()
     data = retrieve_data()
     sorted_data = sort_by_date(data)
     format_excel_sheet(sorted_data)
