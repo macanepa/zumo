@@ -52,17 +52,20 @@ def get_excel():
     login_button = driver.find_element_by_id("Image2")
     login_button.click()
 
-
-
-    # Retrieve xls file
-    url = "https://sodexo.iconstruye.com/Reportes/compra/producto_detallado_proveedor.aspx"
-    driver.get(url)
-    time.sleep(1) # wait a second to load start_date element
-    start_date = driver.find_element_by_id("ctrRangoFechaDespachoFECHADESDE")
-    driver.execute_script("arguments[0].setAttribute(arguments[1], arguments[2]);",
-                          start_date,
-                          "value",
-                          calculate_date())
+    try:
+        # Retrieve xls file
+        url = "https://sodexo.iconstruye.com/Reportes/compra/producto_detallado_proveedor.aspx"
+        driver.get(url)
+        time.sleep(1) # wait a second to load start_date element
+        start_date = driver.find_element_by_id("ctrRangoFechaDespachoFECHADESDE")
+        driver.execute_script("arguments[0].setAttribute(arguments[1], arguments[2]);",
+                              start_date,
+                              "value",
+                              calculate_date())
+    except:
+        mc.register_error(error_string="Credentials are invalid", print_error=True)
+        driver.quit()
+        return
 
     search_button = driver.find_element_by_id("btnBuscar")
     search_button.click()
@@ -71,5 +74,6 @@ def get_excel():
     excel_download_button = driver.find_element_by_id("lnkExcel")
     excel_download_button.click()
 
+    # use quit() to close all windows
     driver.close()
 

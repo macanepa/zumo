@@ -43,7 +43,8 @@ def get_sale_prices():
     data = utilities.get_json()
     path = data["precios_compra_venta_file"]
     if not os.path.isfile(path):
-        mc.exit_application(text="No se ha encontrado el archivo {}".format(path))
+        mc.register_error(error_string="No se ha encontrado el archivo {}".format(path))
+        mc.exit_application(enter_quit=True)
 
     workbook = xlrd.open_workbook(path)
     current_sheet = workbook.sheet_by_index(0)
@@ -192,7 +193,12 @@ def format_excel_sheet(sorted_data):
     file_name = datetime.strftime(current_time, "output %d%m%Y %H%M%S.xls")
     save_path = os.path.join(utilities.get_json()["output_directory"], file_name)
     book.save(save_path)
-    print("output file saved at: {}".format(save_path))
+    mc.mcprint(text="output file saved at: {}".format(save_path), color=mc.Color.GREEN)
+
+    dir_manager = mc.Directory_Manager()
+    mf_open_file = mc.Menu_Function("Abrir archivo {}".format(save_path), dir_manager.open_file, *[save_path])
+    mc_open_file = mc.Menu(title="Abrir Archivo?", options=[mf_open_file])
+    mc_open_file.show()
 
 def begin():
     data = retrieve_data()

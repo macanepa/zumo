@@ -1,6 +1,9 @@
 import os, json, webbrowser, sys
+import mcutils as mc
 
 def initialize_config():
+
+    ul = mc.Log_Manager(developer_mode=True)
 
     output_directory = os.path.join(os.getcwd(),"output")
     config_directory = os.path.join(os.getcwd())
@@ -26,7 +29,8 @@ def initialize_config():
     # create required folders
     for dir in directories:
         if not os.path.isdir(dir):
-            print("Creating folder: {}".format(dir))
+            text = "Creating folder: {}".format(dir)
+            ul.log(text=text)
             os.mkdir(dir)
 
 def download_update(url):
@@ -40,6 +44,4 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 def get_json(config_directory = os.path.join(os.getcwd(),"zumo.json")):
-    with open(config_directory, "r") as json_file:
-        dictionary = json.load(json_file)
-    return dictionary
+    return mc.get_dict_from_json(config_directory)
