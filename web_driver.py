@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from selenium import webdriver
-import sys, os, time, utilities
+import sys, os, time
+import utilities
 import mcutils as mc
 
 
@@ -10,12 +11,17 @@ def generate_web_driver():
     prefs = {'download.default_directory': '{}'.format(download_directory)}
     chrome_options.add_experimental_option('prefs', prefs)
 
+    # chrome_options.add_argument("--window-size=240,320")
+    # chrome_options.add_argument('--headless')
+    # chrome_options.add_argument('--disable-gpu')
+
     if getattr(sys, 'frozen', False):
         chromedriver_path = os.path.join(sys._MEIPASS, "chromedriver.exe")
         driver = webdriver.Chrome(options=chrome_options, executable_path=chromedriver_path)
     else:
         driver = webdriver.Chrome(options=chrome_options)
 
+    # driver.set_window_size(480, 320)
     return driver
 
 def get_credentials():
@@ -75,5 +81,5 @@ def get_excel():
     excel_download_button.click()
 
     # use quit() to close all windows
-    driver.close()
+    # driver.close()
 
