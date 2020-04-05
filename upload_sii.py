@@ -106,7 +106,7 @@ def load_sii(chunk_dictionary, driver):
     referencias_button = driver.find_element_by_xpath(xpath)
     referencias_button.click()
 
-    # click en orden de compre
+    # click en orden de compra
     xpath = "/html/body/div[1]/div[2]/div[1]/div/form/div/div[7]/table[2]/tbody/tr[3]/td[1]/select/optgroup/option[22]"
     oc_button = driver.find_element_by_xpath(xpath)
     oc_button.click()
@@ -137,7 +137,7 @@ def load_sii(chunk_dictionary, driver):
 
     xpath = "/html/body/div[1]/div[2]/div[1]/div/form/p/button[4]"
     borrador_button = driver.find_element_by_xpath(xpath)
-    borrador_button.click()
+    # borrador_button.click()
 
     # mc.exit_application(enter_quit=True)
     time.sleep(.5)

@@ -23,6 +23,7 @@ class product:
         self.subtotal = float(subtotal.replace('.','').replace(',','.'))
         self.precio_compra = float(precio_compra)
         self.contacto = contacto
+        self.total_precio_compra = self.precio_compra * self.cantidad
 
 
     def generate_dictionary(self):
@@ -40,7 +41,8 @@ class product:
             "precio_unitario": self.precio_unitario,
             "subtotal": self.subtotal,
             "precio_compra": self.precio_compra,
-            "contacto": self.contacto
+            "contacto": self.contacto,
+            "total_precio_compra": self.total_precio_compra
         }
         return dictionary
 
@@ -248,7 +250,7 @@ def format_excel_sheet(sorted_data):
                     row = current_sheet.row(row_counter)
                     headers = [i.n_orden_compra, datetime.strftime(i.fecha_emision, '%d-%m-%Y'),
                                datetime.strftime(i.fecha_entrega, '%d-%m-%Y'), i.ce_co, i.rut_cliente,
-                               i.cod_sap, i.descripcion, i.glosa, i.unidad, i.cantidad, i.precio_unitario, i.subtotal, i.precio_compra, i.contacto]
+                               i.cod_sap, i.descripcion, i.glosa, i.unidad, i.cantidad, i.precio_unitario, i.subtotal, i.precio_compra, i.total_precio_compra, i.contacto]
 
 
                     if(i.glosa != ""):
@@ -269,7 +271,7 @@ def format_excel_sheet(sorted_data):
                 row_counter += 1
 
             headers = ['NOC', 'Fecha Emision', 'Fecha Entrega', 'CeCo', 'Rut Cliente', 'Cod Sap',
-                           'Descripcion', 'Glosa', 'Unidad', 'Cantidad', 'Prec. Unit.', 'Sub Total', 'Precio Compra', 'Contacto']
+                           'Descripcion', 'Glosa', 'Unidad', 'Cantidad', 'Prec. Unit.', 'Sub Total', 'Precio Compra', 'Total Precio Compra', 'Contacto']
 
             row_counter += 1
             for element in elements_glosa:
