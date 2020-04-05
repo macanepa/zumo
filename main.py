@@ -7,7 +7,7 @@ import remove_drafts
 
 # mcutils logger
 mc.Log_Settings.display_logs = True
-mc.Color_Settings.is_dev = False
+mc.Color_Settings.is_dev = True
 
 # mcutils Menu declarations
 mf_remove_drafts = mc.Menu_Function("Remover Borradores", remove_drafts.begin)

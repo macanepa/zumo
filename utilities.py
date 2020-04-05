@@ -66,12 +66,12 @@ def import_contacts(path=None):
             contacts_dictionary[line[0]] = {"contacto": line[1], "rut_cliente": line[2]}
             mc.mcprint(line, color=mc.Color.GREEN)
 
-    mc.mcprint(contacts_dictionary, color=mc.Color.BLUE)
+    # mc.mcprint(contacts_dictionary, color=mc.Color.YELLOW)
     path = get_json()["resources_directory"]
     path = os.path.join(path, "contacts.json")
     mc.generate_json(path, contacts_dictionary)
 
-    mc.mcprint("Contactos importados exitosamente", color=mc.Color.GREEN)
+    mc.mcprint("\nContactos importados exitosamente", color=mc.Color.GREEN)
 
 def edit_contacts():
 
@@ -83,7 +83,7 @@ def edit_contacts():
     mc_contacts.show()
 
 def add_contact(contact_id=None):
-    mc.mcprint("Adding new contact", color=mc.Color.BLUE)
+    mc.mcprint("Adding new contact", color=mc.Color.YELLOW)
     default_rut = "94623000-6"
 
     new_contact_dictionary = {}
@@ -107,7 +107,7 @@ def add_contact(contact_id=None):
     contact_dictionary[contact_id] = new_contact_dictionary
     mc.generate_json(path, contact_dictionary)
 
-    mc.mcprint("\n{}\t{}".format(contact_id, new_contact_dictionary), color=mc.Color.BLUE)
+    mc.mcprint("\nid: '{}'\t{}".format(contact_id, new_contact_dictionary), color=mc.Color.YELLOW)
     mc.mcprint("Nuevo contacto ingresado a base de datos exitosamente", color=mc.Color.GREEN)
     return new_contact_dictionary
 
@@ -124,7 +124,7 @@ def add_contact_info(contact_id):
     path = get_json()["resources_directory"]
     path = os.path.join(path, "contacts.json")
     contact_dictionary = get_json(path)
-    contact_data = mc.get_input(text="Introduce informacion de nuevo contacto", color=mc.Color.BLUE)
+    contact_data = mc.get_input(text="Introduce informacion de nuevo contacto", color=mc.Color.YELLOW)
     contact_dictionary[contact_id] = {}
     contact_dictionary[contact_id]["contacto"] = contact_data
     contact_dictionary[contact_id]["rut_cliente"] = "94623000-6"

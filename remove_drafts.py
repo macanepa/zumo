@@ -44,3 +44,4 @@ def begin():
     for draft_url in draft_urls:
         remove_draft(driver, draft_url)
     driver.quit()
+    mc.mcprint(text="Se han eliminado todos los borradores", color=mc.Color.YELLOW)

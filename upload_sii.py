@@ -53,7 +53,7 @@ def load_chunks():
 
 def load_sii(chunk_dictionary, driver):
     set_page(driver)
-    mc.mcprint("\n{}".format(chunk_dictionary), color=mc.Color.BLUE)
+    mc.mcprint("\n{}".format(chunk_dictionary), color=mc.Color.CYAN)
 
     for key in chunk_dictionary:
         rut_cliente = chunk_dictionary[key]["rut_cliente"].split("-")
