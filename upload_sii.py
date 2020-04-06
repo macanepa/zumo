@@ -10,9 +10,7 @@ def get_credentials():
     password = mc.get_input(text="clave")
     return username, password
 
-def login(driver):
-    try:
-        rut, password = get_credentials()
+def login(driver, rut, password):
 
         url = "https://www1.sii.cl/cgi-bin/Portal001/mipeLaunchPage.cgi?OPCION=33&TIPO=4"
         driver.get(url)
@@ -29,13 +27,7 @@ def login(driver):
         # Select second option
         driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/form/div/div[1]/div/div/select/optgroup/option[2]").click()
         driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/form/div/div[2]/button").click()
-    except:
-        mc.register_error(error_string="Credentials are invalid", print_error=True)
 
-    # We are now in position for generating a new document
-
-def generate_document(driver):
-    mc.mcprint("Generating new document", color=mc.Color.YELLOW)
 
 def load_chunks():
     path = utilities.get_json()["output_directory"]
@@ -137,9 +129,8 @@ def load_sii(chunk_dictionary, driver):
 
     xpath = "/html/body/div[1]/div[2]/div[1]/div/form/p/button[4]"
     borrador_button = driver.find_element_by_xpath(xpath)
-    # borrador_button.click()
+    borrador_button.click()
 
-    # mc.exit_application(enter_quit=True)
     time.sleep(.5)
 
 
@@ -160,12 +151,26 @@ def set_page(driver):
 
 def begin():
 
-    driver = web_driver.generate_web_driver()
-    login(driver)
+    while True:
+        try:
+            rut, password = get_credentials()
+            driver = web_driver.generate_web_driver()
+            login(driver=driver, rut=rut, password=password)
+            break
+        except:
+            mc.register_error(error_string="Credentials are invalid", print_error=True)
+            mc.mcprint(text="Vuelva a introducir las credenciales", color=mc.Color.YELLOW)
+            driver.quit()
 
     day_dictionary = load_chunks()
     for order in day_dictionary:
         for chunk in day_dictionary[order]:
-            load_sii(chunk_dictionary=day_dictionary[order][chunk], driver=driver)
-
-
+            while True:
+                try:
+                    load_sii(chunk_dictionary=day_dictionary[order][chunk], driver=driver)
+                    break
+                except:
+                    mc.register_error(error_string="Ocurrio un error en la subida de la orden [{}]".format(order),
+                                      print_error=True)
+                    mc.mcprint(text="Reintentando en 5 segundos", color=mc.Color.YELLOW)
+                    time.sleep(5)

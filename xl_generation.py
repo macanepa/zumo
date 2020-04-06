@@ -7,7 +7,7 @@ import mcutils as mc
 class product:
     def __init__(self, n_orden_compra, fecha_emision, fecha_entrega, ce_co, rut_cliente, cod_sap,
                  descripcion, glosa, unidad, cantidad, precio_unitario,
-                 subtotal, precio_compra, contacto=""):
+                 subtotal, precio_compra, estado_oc, contacto=""):
 
         self.n_orden_compra = (n_orden_compra)
         self.fecha_emision = datetime.strptime(fecha_emision, '%d-%m-%Y')
@@ -23,8 +23,8 @@ class product:
         self.subtotal = float(subtotal.replace('.','').replace(',','.'))
         self.precio_compra = float(precio_compra)
         self.contacto = contacto
+        self.estado_oc = estado_oc
         self.total_precio_compra = self.precio_compra * self.cantidad
-
 
     def generate_dictionary(self):
         dictionary = {
@@ -42,7 +42,8 @@ class product:
             "subtotal": self.subtotal,
             "precio_compra": self.precio_compra,
             "contacto": self.contacto,
-            "total_precio_compra": self.total_precio_compra
+            "total_precio_compra": self.total_precio_compra,
+            "estado_oc": self.estado_oc
         }
         return dictionary
 
@@ -139,10 +140,20 @@ def retrieve_data():
                 temp_precio_compra = sale_prices["{}".format(row_array[10])]
 
 
-
-            product_list.append(product(row_array[0], row_array[5], row_array[6], row_array[7], row_array[8], row_array[10],
-                                                row_array[11], row_array[12], row_array[13], row_array[14], row_array[16], row_array[19], temp_precio_compra))
-
+            product_list.append(product(n_orden_compra=row_array[0],
+                                        fecha_emision=row_array[5],
+                                        fecha_entrega=row_array[6],
+                                        ce_co=row_array[7],
+                                        rut_cliente=row_array[8],
+                                        cod_sap=row_array[10],
+                                        descripcion=row_array[11],
+                                        glosa=row_array[12],
+                                        unidad=row_array[13],
+                                        cantidad=row_array[14],
+                                        precio_unitario=row_array[16],
+                                        subtotal=row_array[19],
+                                        precio_compra=temp_precio_compra,
+                                        estado_oc=row_array[3]))
 
     return product_list
 
@@ -180,13 +191,10 @@ def format_excel_sheet(sorted_data):
     week_data_dictionary = {}
     for daily_data, day_of_week in zip(sorted_data, range(len(sorted_data))):
 
-
             # group by order number
             order_id_list = list(map(lambda x: x.n_orden_compra, daily_data))
             order_id_list = list(dict.fromkeys(order_id_list))
-
             order_list = []
-
 
             for order_id in order_id_list:
                 product_list = list(filter(lambda x: x.n_orden_compra == order_id, daily_data))
@@ -194,9 +202,7 @@ def format_excel_sheet(sorted_data):
 
             current_sheet = book.add_sheet('{}'.format(next_week_dates[day_of_week]))
             elements_glosa = []
-            row_counter = 1
-            # separate by white cell each order
-
+            row_counter = 1 # separate by white cell each order
 
             # contiene todas las ordenes de un mismo dia
             week_data_dictionary["day_{}".format(day_of_week)] = {}
@@ -210,8 +216,6 @@ def format_excel_sheet(sorted_data):
                 if dist_10==0:
                     dist_10=dist_1
                 for i, index in zip(n.products, range(len(n.products))):
-
-                    # create dictionary for json
 
                     if index < (dist_10 * 10):
                         current_page = index // 10

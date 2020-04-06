@@ -17,7 +17,7 @@ def initialize_config():
 
 
     if not os.path.isfile(config_file_directory):
-        print("Creating File: {}".format(config_directory))
+        ul.log(text="Creating File: {}".format(config_file_directory))
         config = {
             "precios_compra_venta_file": "{}".format(os.path.join(resources_directory,"PRECIOS COMPRA VENTA.xlsx")),
             "output_directory": "{}".format(output_directory),
