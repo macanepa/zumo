@@ -52,24 +52,8 @@ def format_excel_sheet(data):
     mc_open_file.show()
 
 def begin():
-    meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre",
-             "Noviembre", "Diciembre"]
 
-    month = int(mc.get_input(text="Indique el Mes (del 1 al 12)", valid_options=range(1,13), return_type=int))
-    mc.mcprint(text="Mes seleccionado: {}".format(meses[month - 1]), color=mc.Color.YELLOW)
-    default_year = datetime.now().year
-    while True:
-        year = mc.get_input(text="Año (dejar en blanco para [{}])".format(default_year))
-        if year == "":
-            year = default_year
-        try:
-            year = int(year)
-            break
-        except:
-            mc.mcprint("Año no valido, vuelve a introducir un año", color=mc.Color.YELLOW)
-
-    date = datetime(year=year, month=month, day=1)
-
+    date = mc.date_generator(day=1)
     data = xl_generation.retrieve_data()
     accepted_orders = list(filter(lambda x: ("Aceptada" in x.estado_oc)
                                             and x.cantidad != 0

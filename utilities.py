@@ -5,8 +5,6 @@ import mcutils as mc
 
 def initialize_config():
 
-    ul = mc.Log_Manager(developer_mode=True)
-
     output_directory = os.path.join(os.getcwd(),"output")
     config_directory = os.path.join(os.getcwd())
     resources_directory = os.path.join(os.getcwd(),"resources")
@@ -17,7 +15,7 @@ def initialize_config():
 
 
     if not os.path.isfile(config_file_directory):
-        ul.log(text="Creating File: {}".format(config_file_directory))
+        mc.log(text="Creating File: {}".format(config_file_directory))
         config = {
             "precios_compra_venta_file": "{}".format(os.path.join(resources_directory,"PRECIOS COMPRA VENTA.xlsx")),
             "output_directory": "{}".format(output_directory),
@@ -32,7 +30,7 @@ def initialize_config():
     for dir in directories:
         if not os.path.isdir(dir):
             text = "Creating folder: {}".format(dir)
-            ul.log(text=text)
+            mc.log(text=text)
             os.mkdir(dir)
 
 def download_update(url):

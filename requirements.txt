@@ -6,7 +6,7 @@ colorama==0.4.3
 feedparser==5.2.1
 future==0.18.2
 idna==2.9
-mcutils==0.0.7
+mcutils==0.0.8
 pefile==2019.4.18
 PyInstaller==3.6
 pywin32-ctypes==0.2.0
