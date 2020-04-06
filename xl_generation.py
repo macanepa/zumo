@@ -108,7 +108,6 @@ def get_sale_prices():
 
     return dict
 
-
 def get_latest_file(directory):
     dir_list = []
     for file in os.listdir(directory):
@@ -119,7 +118,6 @@ def get_latest_file(directory):
 
     latest_file_path = max(dir_list, key=os.path.getmtime)
     return latest_file_path
-
 
 def retrieve_data():
     sale_prices = get_sale_prices()
@@ -156,7 +154,6 @@ def retrieve_data():
                                         estado_oc=row_array[3]))
 
     return product_list
-
 
 def sort_by_date(order_product_list):
     sorted_by_date = (list(sorted(order_product_list, key=lambda x: x.fecha_entrega)))
