@@ -140,3 +140,8 @@ output/
 precios compra venta/
 test
 resources/
+
+code/downloads/
+code/output/
+code/resources/
+code/zumo.json
