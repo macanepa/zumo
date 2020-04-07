@@ -16,7 +16,7 @@ mf_generate_monthly_report = mc.Menu_Function("Generar Reporte Mensual", generat
 m_reports = mc.Menu(title="Generar Reporte", options=[mf_generate_monthly_report])
 
 mf_remove_drafts = mc.Menu_Function("Remover Borradores", remove_drafts.begin)
-mf_manage_contacts = mc.Menu_Function("Gestionar Contactos", utilities.edit_contacts)
+mf_manage_contacts = mc.Menu_Function("Gestionar Contactos", utilities.manage_contacts)
 mf_download_update = mc.Menu_Function("Descargar Actualizacion", utilities.download_update, "https://github.com/macanepa/zumo/releases")
 m_utilities = mc.Menu(title="Herramientas", options=[mf_manage_contacts, mf_remove_drafts, mf_download_update])
 

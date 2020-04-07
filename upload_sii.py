@@ -45,7 +45,7 @@ def load_chunks():
 
 def load_sii(chunk_dictionary, driver):
     set_page(driver)
-    mc.mcprint("\n{}".format(chunk_dictionary), color=mc.Color.CYAN)
+    # mc.mcprint("\n{}".format(chunk_dictionary), color=mc.Color.CYAN)
 
     for key in chunk_dictionary:
         rut_cliente = chunk_dictionary[key]["rut_cliente"].split("-")
@@ -56,7 +56,7 @@ def load_sii(chunk_dictionary, driver):
 
     for key, i in zip(chunk_dictionary, range(1, len(chunk_dictionary)+1)):
         product = chunk_dictionary[key]
-        mc.mcprint(product, color=mc.Color.YELLOW)
+        # mc.mcprint(product, color=mc.Color.YELLOW)
 
         list = []
         list.append(driver.find_element_by_name("EFXP_NMB_{:0>2d}".format(i))) # name
@@ -147,10 +147,7 @@ def set_page(driver):
         add_button = selection[0]
         add_button.click()
 
-
-
-def begin():
-
+def input_credentials():
     while True:
         try:
             rut, password = get_credentials()
@@ -161,15 +158,22 @@ def begin():
             mc.register_error(error_string="Credentials are invalid", print_error=True)
             mc.mcprint(text="Vuelva a introducir las credenciales", color=mc.Color.YELLOW)
             driver.quit()
+    return driver
+
+def begin():
+
+    driver = input_credentials()
 
     day_dictionary = load_chunks()
-    for order in day_dictionary:
+    for order, index in zip(day_dictionary, range(len(day_dictionary))):
         for chunk in day_dictionary[order]:
             while True:
                 try:
+                    mc.progress_bar(current_index=index, total=range(len(day_dictionary)))
                     load_sii(chunk_dictionary=day_dictionary[order][chunk], driver=driver)
                     break
                 except:
+                    mc.clear(10)
                     mc.register_error(error_string="Ocurrio un error en la subida de la orden [{}]".format(order),
                                       print_error=True)
                     mc.mcprint(text="Reintentando en 5 segundos", color=mc.Color.YELLOW)

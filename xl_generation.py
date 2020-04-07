@@ -158,14 +158,21 @@ def retrieve_data():
 def sort_by_date(order_product_list):
     sorted_by_date = (list(sorted(order_product_list, key=lambda x: x.fecha_entrega)))
 
-    mc_select_week = mc.Menu(title="Elegir semana", options=["Proxima Semana", "Esta Semana"], back=False)
+    mc_select_week = mc.Menu(title="Elegir semana", options=["Proxima Semana", "Esta Semana", "Introducir Fecha Manual"], back=False)
     mc_select_week.show()
     week_index = int(mc_select_week.returned_value)
     if week_index == 2:
         Week.WEEK_SHIFT = 0
-    else:
+        selected_date = int(datetime.strftime(datetime.now(), "%W")) + Week.WEEK_SHIFT
+    elif week_index == 1:
         Week.WEEK_SHIFT = 1
-    filtered_next_week = list(filter(lambda x: datetime.strftime(x.fecha_entrega, "%W") == str(int(datetime.strftime(datetime.now(), "%W")) + Week.WEEK_SHIFT), sorted_by_date))
+        selected_date = int(datetime.strftime(datetime.now(), "%W")) + Week.WEEK_SHIFT
+    else:
+        custom_date = mc.date_generator()
+        selected_date = int(datetime.strftime(custom_date, "%W"))
+
+
+    filtered_next_week = list(filter(lambda x: datetime.strftime(x.fecha_entrega, "%W") == str(selected_date), sorted_by_date))
 
     # Separated by day of the week
     splited = []

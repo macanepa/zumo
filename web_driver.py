@@ -49,7 +49,6 @@ def get_excel():
     url = "https://sodexo.iconstruye.com/"
     driver = generate_web_driver()
     driver.get(url)
-
     # Login
     input_field(driver=driver, id="txtUsuario", value=username)
     input_field(driver=driver, id="txtEmpresa", value=organization)
@@ -79,7 +78,8 @@ def get_excel():
 
     excel_download_button = driver.find_element_by_id("lnkExcel")
     excel_download_button.click()
-
+    # driver.minimize_window()
+    # mc.get_input("Presione Enter para finalizar...", color=mc.Color.CYAN)
     # use quit() to close all windows
-    # driver.close()
+    # driver.quit()
 

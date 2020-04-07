@@ -71,14 +71,50 @@ def import_contacts(path=None):
 
     mc.mcprint("\nContactos importados exitosamente", color=mc.Color.GREEN)
 
-def edit_contacts():
+def manage_contacts():
 
     mc_add_contact = mc.Menu_Function("Agregar Nuevo Contacto", add_contact)
     mc_show_contacts = mc.Menu_Function("Mostrar Contactos", show_contacts)
     mc_import_contacts = mc.Menu_Function("Importar Contactos", import_contacts)
-    mc_contacts = mc.Menu(title="Gestionar Contactos", options=[mc_add_contact, mc_show_contacts, mc_import_contacts])
+    mc_edit_contacts = mc.Menu_Function("Editar Contactos", edit_contact)
+    mc_remove_contact = mc.Menu_Function("Eliminar Contacto", remove_contact)
+    mc_export_contacts = mc.Menu_Function("{}Exportar Contactos (usar con precaucion){}".format(mc.Color.RED, mc.Color.RESET), export_contact)
 
+    mc_contacts = mc.Menu(title="Gestionar Contactos", options=[mc_add_contact, mc_edit_contacts, mc_show_contacts, mc_import_contacts, mc_export_contacts, mc_remove_contact])
     mc_contacts.show()
+
+def edit_contact():
+
+    contacts_path = get_json()["resources_directory"]
+    contacts_path = os.path.join(contacts_path, "contacts.json")
+    contacts_dictionary = get_json(contacts_path)
+    contacts_ids = list(contacts_dictionary.keys())
+
+    show_contacts()
+    print()
+
+    contact_id = mc.get_input(text="Introduce el id", valid_options=contacts_ids)
+    contact = contacts_dictionary[contact_id]
+    mc.mcprint(contact, color=mc.Color.CYAN)
+
+    contact_keys = (list(contact.keys()))
+    contact_keys.insert(0, "id")
+
+    select_menu = mc.Menu(title="Seleccione item a modificar", options=contact_keys)
+    select_menu.show()
+    selected_option = select_menu.returned_value
+
+    if selected_option == "0":
+        return
+    new_value = mc.get_input(text="Indique nuevo valor de {}".format(contact_keys[int(selected_option)-1]))
+    if selected_option == "1":
+        contacts_dictionary[new_value] = contacts_dictionary.pop(contact_id)
+    else:
+        contacts_dictionary[contact_id][contact_keys[int(selected_option)-1]] = new_value
+
+    mc.generate_json(contacts_path, contacts_dictionary)
+
+    mc.mcprint(text="Contacto modificado exitosamente", color=mc.Color.GREEN)
 
 def add_contact(contact_id=None):
     mc.mcprint("Adding new contact", color=mc.Color.YELLOW)
@@ -129,3 +165,48 @@ def add_contact_info(contact_id):
     mc.generate_json(path, contact_dictionary)
     mc.mcprint(text="contacto {} agregado correctamente a la base de datos\n".format(contact_id), color=mc.Color.GREEN)
     return contact_data
+
+def remove_contact(contact_id=None):
+
+    contacts_path = get_json()["resources_directory"]
+    contacts_path = os.path.join(contacts_path, "contacts.json")
+    contacts_dictionary = get_json(contacts_path)
+
+    contacts_ids = list(contacts_dictionary.keys())
+    show_contacts()
+    print()
+    if contact_id == None:
+        contact_id = mc.get_input(text="Indique el id del contacto a eliminar", valid_options=contacts_ids)
+    try:
+        del contacts_dictionary[contact_id]
+    except:
+        mc.register_error(error_string="No se ha econtrador el contacto ({})".format(contact_id), print_error=True)
+        return
+    mc.generate_json(contacts_path, contacts_dictionary)
+    mc.mcprint("Contacto ({}) ha sido eliminado exitosamente".format(contact_id), color=mc.Color.RED)
+
+def export_contact(path=None):
+
+
+    resource_path = get_json()["resources_directory"]
+    if path == None:
+        csv_path = os.path.join(resource_path, "LISTA CECO CASINOS.csv")
+
+    json_path = os.path.join(resource_path,"contacts.json")
+    contacts_dictionary = get_json(json_path)
+
+    upload_list = []
+    with open(csv_path, "r", encoding="ISO-8859-1") as csv_file:
+        for line in csv_file:
+            id = line.split(";")[0]
+            upload_list.append(id)
+
+    keys = list(contacts_dictionary.keys())
+    upload_list_id = list(filter(lambda x: not x in upload_list, keys))
+
+    with open(csv_path, "a+", encoding="ISO-8859-1") as csv_file:
+        for id in upload_list_id:
+            mc.mcprint(text="Inserting to .CSV ['{}': {}]".format(id, contacts_dictionary[id]), color=mc.Color.GREEN)
+            csv_file.write("{};{};{}\n".format(id, contacts_dictionary[id]["contacto"], contacts_dictionary[id]["rut_cliente"]))
+
+    mc.mcprint("\nArchivo actualizado exitosamente", color=mc.Color.GREEN)
