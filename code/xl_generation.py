@@ -137,7 +137,6 @@ def retrieve_data():
             if sale_prices.get(str(row_array[10])) != None:
                 temp_precio_compra = sale_prices["{}".format(row_array[10])]
 
-
             product_list.append(product(n_orden_compra=row_array[0],
                                         fecha_emision=row_array[5],
                                         fecha_entrega=row_array[6],
@@ -153,6 +152,8 @@ def retrieve_data():
                                         precio_compra=temp_precio_compra,
                                         estado_oc=row_array[3]))
 
+    product_list = filter_products(product_list)
+
     return product_list
 
 def sort_by_date(order_product_list):
@@ -163,16 +164,24 @@ def sort_by_date(order_product_list):
     week_index = int(mc_select_week.returned_value)
     if week_index == 2:
         Week.WEEK_SHIFT = 0
-        selected_date = int(datetime.strftime(datetime.now(), "%W")) + Week.WEEK_SHIFT
+        selected_date = datetime.now()
     elif week_index == 1:
         Week.WEEK_SHIFT = 1
-        selected_date = int(datetime.strftime(datetime.now(), "%W")) + Week.WEEK_SHIFT
+        selected_date = datetime.now() + timedelta(days=7)
     else:
         custom_date = mc.date_generator()
-        selected_date = int(datetime.strftime(custom_date, "%W"))
+        current_date = datetime.now()
+
+        monday1 = (current_date.date() - timedelta(days=current_date.weekday()))
+        monday2 = (custom_date.date() - timedelta(days=custom_date.weekday()))
+
+        Week.WEEK_SHIFT = ((monday2 - monday1).days / 7)
+        mc.mcprint("WEEK SHIFT: {}".format(Week.WEEK_SHIFT), color=mc.Color.RED)
+        selected_date = custom_date
 
 
-    filtered_next_week = list(filter(lambda x: datetime.strftime(x.fecha_entrega, "%W") == str(selected_date), sorted_by_date))
+    filtered_next_week = list(filter(lambda x: (datetime.strftime(x.fecha_entrega, "%W") ==  datetime.strftime(selected_date, "%W")) and
+                                     (datetime.strftime(x.fecha_entrega, "%Y") == datetime.strftime(selected_date, "%Y")), sorted_by_date))
 
     # Separated by day of the week
     splited = []
@@ -320,6 +329,17 @@ def convert_data_to_json(data):
     path = utilities.get_json()["output_directory"]
     path = os.path.join(path, "temp.json")
     mc.generate_json(path, data)
+
+def filter_products(orders):
+    accepted_orders = list(filter(lambda x: ((("Aceptada" in x.estado_oc) and (x.cantidad != 0) and not ("No Aceptada" in x.estado_oc)) or
+                                             ("Nueva Orden" in x.estado_oc) or
+                                             ("En Proceso" in x.estado_oc)), orders))
+
+    # for order in accepted_orders:
+    #     print("Wiwi", order.estado_oc)
+
+    # return orders
+    return accepted_orders
 
 def begin():
     data = retrieve_data()

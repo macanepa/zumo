@@ -28,19 +28,44 @@ def login(driver, rut, password):
         driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/form/div/div[1]/div/div/select/optgroup/option[2]").click()
         driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/form/div/div[2]/button").click()
 
+def select_one_order(day_dictionary):
+
+    orders_ids = list(day_dictionary.keys())
+    select_menu = mc.Menu(title="Seleccione una orden", options=orders_ids)
+    select_menu.show()
+    selected_order_id = orders_ids[int(select_menu.returned_value) - 1]
+
+    return_chunk_dictionary = {}
+    for order_id in day_dictionary:
+        if order_id == selected_order_id:
+            return_chunk_dictionary[order_id] = day_dictionary[order_id]
+
+    return return_chunk_dictionary
+
 
 def load_chunks():
     path = utilities.get_json()["output_directory"]
     path = os.path.join(path, "temp.json")
     dictionary = utilities.get_json(path)
     day_list = list(dictionary.keys())
-    mc_select = mc.Menu(title="Seleccionar dia", options=day_list)
+
+    days_of_week = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo", ]
+    days_of_week = days_of_week[:len(day_list)]
+
+    mc_select = mc.Menu(title="Seleccionar dia", options=days_of_week)
     mc_select.show()
     returned_value = mc_select.returned_value
 
-    day_dictionary = {}
-    if returned_value != 0:
-        day_dictionary = dictionary["day_{}".format(int(returned_value) - 1)]
+    if returned_value == "0":
+        return None
+
+    day_dictionary = dictionary["day_{}".format(int(returned_value) - 1)]
+    mc_select = mc.Menu(title="Seleccionar Orden de Compra", options=["Seleccionar todas las ordenes", "Seleccionar una orden"], back=False)
+    mc_select.show()
+
+    if mc_select.returned_value == "2":
+        day_dictionary = select_one_order(day_dictionary)
+
     return day_dictionary
 
 def load_sii(chunk_dictionary, driver):
@@ -165,6 +190,7 @@ def begin():
     driver = input_credentials()
 
     day_dictionary = load_chunks()
+    if day_dictionary == None: return
     for order, index in zip(day_dictionary, range(len(day_dictionary))):
         for chunk in day_dictionary[order]:
             while True:

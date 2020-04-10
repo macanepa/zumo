@@ -97,13 +97,25 @@ def format_excel_sheet(data):
     mc_open_file = mc.Menu(title="Abrir Archivo?", options=[mf_open_file])
     mc_open_file.show()
 
-def begin():
+def begin(year_report=False):
     mc.mcprint("Se utilizaran los precios del archivo '{}'".format(utilities.get_json()["precios_compra_venta_file"]), color=mc.Color.YELLOW)
-    date = mc.date_generator(day=1)
+
     data = xl_generation.retrieve_data()
-    accepted_orders = list(filter(lambda x: ("Aceptada" in x.estado_oc)
-                                            and x.cantidad != 0
-                                            and x.fecha_entrega.year == date.year
-                                            and x.fecha_entrega.month == date.month, data))
+    if not year_report:
+        date = mc.date_generator(day=1)
+        accepted_orders = list(filter(lambda x: ((("Aceptada" in x.estado_oc) and (x.cantidad != 0) and not ("No Aceptada" in x.estado_oc)) or
+                                                 ("Nueva Orden" in x.estado_oc) or
+                                                 ("En Proceso" in x.estado_oc))
+                                                and x.cantidad != 0
+                                                and x.fecha_entrega.year == date.year
+                                                and x.fecha_entrega.month == date.month, data))
+    else:
+        date = mc.date_generator(day=1, month=1)
+        accepted_orders = list(filter(lambda x: ((("Aceptada" in x.estado_oc) and (x.cantidad != 0) and not ("No Aceptada" in x.estado_oc)) or
+                                                 ("Nueva Orden" in x.estado_oc) or
+                                                 ("En Proceso" in x.estado_oc))
+                                                and x.cantidad != 0
+                                                and x.fecha_entrega.year == date.year, data))
+
 
     format_excel_sheet(accepted_orders)

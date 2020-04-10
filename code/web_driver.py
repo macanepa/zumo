@@ -40,7 +40,7 @@ def calculate_date():
     date = date.replace(day=1)
     return date.strftime("%d-%m-%Y")
 
-def get_excel():
+def get_excel(fecha_desde=None):
 
     # Get login credentials from user
     username, organization, password = get_credentials()
@@ -57,6 +57,11 @@ def get_excel():
     login_button = driver.find_element_by_id("Image2")
     login_button.click()
 
+    date = calculate_date()
+    if fecha_desde != None:
+        date = fecha_desde
+
+
     try:
         # Retrieve xls file
         url = "https://sodexo.iconstruye.com/Reportes/compra/producto_detallado_proveedor.aspx"
@@ -66,7 +71,7 @@ def get_excel():
         driver.execute_script("arguments[0].setAttribute(arguments[1], arguments[2]);",
                               start_date,
                               "value",
-                              calculate_date())
+                              date)
     except:
         mc.register_error(error_string="Credentials are invalid", print_error=True)
         driver.quit()
