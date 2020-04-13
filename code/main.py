@@ -8,7 +8,7 @@ import generate_monthly_report
 
 # mcutils logger
 mc.Log_Settings.display_logs = True
-mc.Color_Settings.is_dev = True
+mc.Color_Settings.is_dev = False
 mc.Main_Logger.log_manager.developer_mode = True
 
 # mcutils Menu declarations
