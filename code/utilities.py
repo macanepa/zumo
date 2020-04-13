@@ -20,7 +20,9 @@ def initialize_config():
             "precios_compra_venta_file": "{}".format(os.path.join(resources_directory,"PRECIOS COMPRA VENTA.xlsx")),
             "output_directory": "{}".format(output_directory),
             "resources_directory": "{}".format(resources_directory),
-            "downloads_directory": "{}".format(downloads_directory)
+            "downloads_directory": "{}".format(downloads_directory),
+            "configuration_path": "{}".format(config_file_directory),
+            "shortener": {"RESOLUCION": "RES", "CALIBRE": "CAL", "RESOLUCIÓN": "RES"}
         }
 
         with open("zumo.json", "w") as config_file:
@@ -210,3 +212,47 @@ def export_contact(path=None):
             csv_file.write("{};{};{}\n".format(id, contacts_dictionary[id]["contacto"], contacts_dictionary[id]["rut_cliente"]))
 
     mc.mcprint("\nArchivo actualizado exitosamente", color=mc.Color.GREEN)
+
+def show_shorteners():
+    dictionary = get_json()
+    print()
+    for shortener_key in dictionary["shortener"]:
+        mc.mcprint(text="{}: {}".format(shortener_key, dictionary["shortener"][shortener_key]), color=mc.Color.YELLOW)
+
+
+def add_shortener():
+    show_shorteners()
+    dictionary = get_json()
+    path = get_json()["configuration_path"]
+    print()
+    shortener_key = mc.get_input(text="String a reemplazar")
+    shortener = mc.get_input(text="Nuevo string")
+    dictionary["shortener"][shortener_key] = shortener
+    mc.mcprint(text="\nAcortador '{}': '{}' ha sido creado exitosamente".format(shortener_key,shortener), color=mc.Color.GREEN)
+
+    mc.generate_json(path=path, dictionary=dictionary)
+
+def remove_shortener():
+    show_shorteners()
+    dictionary = get_json()
+    path = get_json()["configuration_path"]
+
+    shortener_keys = list(dictionary["shortener"].keys())
+    selection_menu = mc.Menu(title="Seleccione acortador para eliminar", options=shortener_keys)
+    selection_menu.show()
+    if selection_menu.returned_value != "0":
+        selected_key = shortener_keys[int(selection_menu.returned_value) - 1]
+        del dictionary["shortener"][selected_key]
+
+        mc.mcprint(dictionary, color=mc.Color.RED)
+        mc.generate_json(path=path, dictionary=dictionary)
+        mc.mcprint(text="\nEl acortador '{}' se ha eliminado".format(selected_key), color=mc.Color.RED)
+
+
+def manage_shorteners():
+    mf_add_shortener = mc.Menu_Function("Agregar/Editar Acortador", add_shortener)
+    mf_remove_shortener = mc.Menu_Function("Remover Acortador", remove_shortener)
+    mf_show_shorteners = mc.Menu_Function("Mostrar Acortadores", show_shorteners)
+
+    manage_shorteners_menu = mc.Menu(title="Gestionar Acortadores", options=[mf_add_shortener, mf_remove_shortener, mf_show_shorteners])
+    manage_shorteners_menu.show()

@@ -19,7 +19,8 @@ mf_remove_drafts = mc.Menu_Function("Remover Borradores", remove_drafts.begin)
 mf_manage_contacts = mc.Menu_Function("Gestionar Contactos", utilities.manage_contacts)
 mf_download_update = mc.Menu_Function("Descargar Actualizacion", utilities.download_update,
                                       "https://github.com/macanepa/zumo/releases")
-m_utilities = mc.Menu(title="Herramientas", options=[mf_manage_contacts, mf_remove_drafts, mf_download_update])
+mf_manage_shorteners = mc.Menu_Function("Gestionar Acortadores", utilities.manage_shorteners)
+m_utilities = mc.Menu(title="Herramientas", options=[mf_manage_contacts, mf_manage_shorteners, mf_remove_drafts, mf_download_update])
 
 
 mf_start = mc.Menu_Function("Obtener Excel", web_driver.get_excel)

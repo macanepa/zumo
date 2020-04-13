@@ -137,13 +137,19 @@ def retrieve_data():
             if sale_prices.get(str(row_array[10])) != None:
                 temp_precio_compra = sale_prices["{}".format(row_array[10])]
 
+            descripcion = row_array[11]
+            if len(descripcion) > 15:
+                shortener_dictionary = utilities.get_json()["shortener"]
+                for shortener_key in shortener_dictionary:
+                    descripcion = descripcion.upper().replace(shortener_key, shortener_dictionary[shortener_key])
+
             product_list.append(product(n_orden_compra=row_array[0],
                                         fecha_emision=row_array[5],
                                         fecha_entrega=row_array[6],
                                         ce_co=row_array[7],
                                         rut_cliente=row_array[8],
                                         cod_sap=row_array[10],
-                                        descripcion=row_array[11],
+                                        descripcion=descripcion,
                                         glosa=row_array[12],
                                         unidad=row_array[13],
                                         cantidad=row_array[14],
