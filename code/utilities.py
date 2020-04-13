@@ -213,12 +213,12 @@ def export_contact(path=None):
 
     mc.mcprint("\nArchivo actualizado exitosamente", color=mc.Color.GREEN)
 
+
 def show_shorteners():
     dictionary = get_json()
     print()
     for shortener_key in dictionary["shortener"]:
         mc.mcprint(text="{}: {}".format(shortener_key, dictionary["shortener"][shortener_key]), color=mc.Color.YELLOW)
-
 
 def add_shortener():
     show_shorteners()
@@ -248,7 +248,6 @@ def remove_shortener():
         mc.generate_json(path=path, dictionary=dictionary)
         mc.mcprint(text="\nEl acortador '{}' se ha eliminado".format(selected_key), color=mc.Color.RED)
 
-
 def manage_shorteners():
     mf_add_shortener = mc.Menu_Function("Agregar/Editar Acortador", add_shortener)
     mf_remove_shortener = mc.Menu_Function("Remover Acortador", remove_shortener)
@@ -259,13 +258,34 @@ def manage_shorteners():
 
 def regenerate_configuration_file():
 
-    regenerate_config_menu = mc.Menu(title="¿Seguro que desea restablecer a la configuracion inicial? "
-               "{}(Se perderan todos los acortadores){}".format(mc.Color.RED,mc.Color.RESET),
-                                     options = ["{}Restablecer{}".format(mc.Color.RED, mc.Color.RESET)])
-    regenerate_config_menu.show()
+    configuration_path = get_json()["configuration_path"]
+    os.remove(configuration_path)
+    mc.log(text="file removed '{}'".format(configuration_path))
+    initialize_config()
 
-    if regenerate_config_menu.returned_value != "0":
-        configuration_path = get_json()["configuration_path"]
-        os.remove(configuration_path)
-        mc.log(text="file removed '{}'".format(configuration_path))
-        initialize_config()
+
+# Shortener Manager Menu
+mf_add_shortener = mc.Menu_Function("Agregar/Editar Acortador", add_shortener)
+mf_remove_shortener = mc.Menu_Function("Remover Acortador", remove_shortener)
+mf_show_shorteners = mc.Menu_Function("Mostrar Acortadores", show_shorteners)
+
+mc_manage_shorteners = mc.Menu(title="Gestionar Acortadores", options=[mf_add_shortener, mf_remove_shortener, mf_show_shorteners])
+
+
+
+# Contact Manager Menu
+mc_add_contact = mc.Menu_Function("Agregar Nuevo Contacto", add_contact)
+mc_show_contacts = mc.Menu_Function("Mostrar Contactos", show_contacts)
+mc_import_contacts = mc.Menu_Function("Importar Contactos", import_contacts)
+mc_edit_contacts = mc.Menu_Function("Editar Contactos", edit_contact)
+mc_remove_contact = mc.Menu_Function("Eliminar Contacto", remove_contact)
+mc_export_contacts = mc.Menu_Function("{}Exportar Contactos (usar con precaucion){}".format(mc.Color.RED, mc.Color.RESET), export_contact)
+
+mc_manage_contacts = mc.Menu(title="Gestionar Contactos", options=[mc_add_contact, mc_edit_contacts, mc_show_contacts, mc_import_contacts, mc_export_contacts, mc_remove_contact])
+
+# Regenerate configuration Menu
+mf_regenerate_configuration_file = mc.Menu_Function("{}Restablecer{}".format(mc.Color.RED, mc.Color.RESET), regenerate_configuration_file)
+mc_regenerate_config = mc.Menu(title="{}Restablecer Configuracion{}".format(mc.Color.YELLOW, mc.Color.RESET),
+               subtitle="¿Seguro que desea restablecer a la configuracion inicial? "
+               "{}(Se perderan todos los acortadores){}".format(mc.Color.RED,mc.Color.RESET),
+               options=[mf_regenerate_configuration_file])
