@@ -138,7 +138,7 @@ def retrieve_data():
                 temp_precio_compra = sale_prices["{}".format(row_array[10])]
 
             descripcion = row_array[11]
-            if len(descripcion) > 15:
+            if len(descripcion) > 25:
                 shortener_dictionary = utilities.get_json()["shortener"]
                 for shortener_key in shortener_dictionary:
                     descripcion = descripcion.upper().replace(shortener_key, shortener_dictionary[shortener_key])

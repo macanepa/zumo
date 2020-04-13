@@ -8,19 +8,23 @@ import generate_monthly_report
 
 # mcutils logger
 mc.Log_Settings.display_logs = True
-mc.Color_Settings.is_dev = False
+mc.Color_Settings.is_dev = True
 mc.Main_Logger.log_manager.developer_mode = True
 
 # mcutils Menu declarations
 mf_generate_monthly_report = mc.Menu_Function("Generar Reporte Mensual", generate_monthly_report.begin)
 m_reports = mc.Menu(title="Generar Reporte", options=[mf_generate_monthly_report])
 
+# Utilities Menu
 mf_remove_drafts = mc.Menu_Function("Remover Borradores", remove_drafts.begin)
 mf_manage_contacts = mc.Menu_Function("Gestionar Contactos", utilities.manage_contacts)
 mf_download_update = mc.Menu_Function("Descargar Actualizacion", utilities.download_update,
                                       "https://github.com/macanepa/zumo/releases")
 mf_manage_shorteners = mc.Menu_Function("Gestionar Acortadores", utilities.manage_shorteners)
-m_utilities = mc.Menu(title="Herramientas", options=[mf_manage_contacts, mf_manage_shorteners, mf_remove_drafts, mf_download_update])
+mf_regenerate_configuration_file = mc.Menu_Function("{}Restablecer configuracion{}".format(mc.Color.YELLOW,
+                                                       mc.Color.RESET), utilities.regenerate_configuration_file)
+m_utilities = mc.Menu(title="Herramientas", options=[mf_manage_contacts, mf_manage_shorteners, mf_remove_drafts,
+                                                     mf_download_update, mf_regenerate_configuration_file])
 
 
 mf_start = mc.Menu_Function("Obtener Excel", web_driver.get_excel)

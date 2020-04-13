@@ -15,7 +15,7 @@ def initialize_config():
 
 
     if not os.path.isfile(config_file_directory):
-        mc.log(text="Creating File: {}".format(config_file_directory))
+        mc.log(text="Creating file: {}".format(config_file_directory))
         config = {
             "precios_compra_venta_file": "{}".format(os.path.join(resources_directory,"PRECIOS COMPRA VENTA.xlsx")),
             "output_directory": "{}".format(output_directory),
@@ -256,3 +256,16 @@ def manage_shorteners():
 
     manage_shorteners_menu = mc.Menu(title="Gestionar Acortadores", options=[mf_add_shortener, mf_remove_shortener, mf_show_shorteners])
     manage_shorteners_menu.show()
+
+def regenerate_configuration_file():
+
+    regenerate_config_menu = mc.Menu(title="¿Seguro que desea restablecer a la configuracion inicial? "
+               "{}(Se perderan todos los acortadores){}".format(mc.Color.RED,mc.Color.RESET),
+                                     options = ["{}Restablecer{}".format(mc.Color.RED, mc.Color.RESET)])
+    regenerate_config_menu.show()
+
+    if regenerate_config_menu.returned_value != "0":
+        configuration_path = get_json()["configuration_path"]
+        os.remove(configuration_path)
+        mc.log(text="file removed '{}'".format(configuration_path))
+        initialize_config()
