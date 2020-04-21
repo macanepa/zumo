@@ -1,0 +1,52 @@
+.menu-btn{
+    background-color: rgb(255, 113, 61);
+    padding: 10px;
+}
+
+.menu-btn:hover{
+    transition: 0.2s;
+    background-color: rgb(218, 83, 35);
+}
+
+.menu-btn p{
+    color: whitesmoke;
+    text-align: center;
+    margin: auto;
+}
+
+
+.menu-btn:active{
+    background-color: rgb(150, 58, 25);
+}
+
+.obtener-excel-container{
+    width: 80%;
+    margin: auto;
+    height: 80%;
+    margin-top: 5%;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    padding: 30px;
+    background-color: rgb(230, 221, 215);
+}
+
+.date-container{
+    margin: auto;
+}
+
+.sub-container{
+    background-color: rgb(230, 221, 215);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.container-title{
+    background-color: black;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    width: 80%;
+}
+
+.main-container{
+    
+}
