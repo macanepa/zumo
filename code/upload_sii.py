@@ -74,7 +74,7 @@ def load_sii(chunk_dictionary, driver):
 
     for key in chunk_dictionary:
         rut_cliente = chunk_dictionary[key]["rut_cliente"].split("-")
-        folio = "OC{}".format(chunk_dictionary[key]["n_order_compra"])
+        folio = "{}".format(chunk_dictionary[key]["n_order_compra"])
         contacto = chunk_dictionary[key]["contacto"]
         s_fecha = chunk_dictionary[key]["fecha_emision"]
         d_fecha = datetime.strptime(s_fecha, "%d-%m-%Y")
