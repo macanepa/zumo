@@ -80,7 +80,12 @@ def get_excel(fecha_desde=None):
 
     search_button = driver.find_element_by_id("btnBuscar")
     search_button.click()
-    driver.switch_to.alert.accept()
+
+    try:
+        driver.switch_to.alert.accept()
+    except Exception:
+        None
+
 
     excel_download_button = driver.find_element_by_id("lnkExcel")
     excel_download_button.click()
