@@ -26,10 +26,18 @@ def generate_web_driver():
     return driver
 
 def get_credentials():
-    username = mc.get_input(text="usuario")
-    organization = mc.get_input(text="organizacion")
-    password = mc.get_input(text="clave")
+    mc_credentials = mc.Menu(title='Introduzca sus credenciales de SODEXO',
+                             subtitle='Introuzca 0 en cualquier campo para volver',
+                             options={'usuario': [str, '>0'],
+                                      'organizacion': [str, '>0'],
+                                      'clave': [str, '>0'],
+                                      }, input_each=True)
+    mc_credentials.show()
+    username = mc_credentials.returned_value['usuario']
+    organization = mc_credentials.returned_value['organizacion']
+    password = mc_credentials.returned_value['clave']
     return username, organization, password
+
 
 def input_field(driver, id, value):
     field = driver.find_element_by_id(id)
@@ -45,6 +53,8 @@ def get_excel(fecha_desde=None):
 
     # Get login credentials from user
     username, organization, password = get_credentials()
+    if '0' in [username, organization, password]:
+        return
 
     # Head to website
     url = "https://sodexo.iconstruye.com/"
@@ -74,7 +84,7 @@ def get_excel(fecha_desde=None):
                               "value",
                               date)
     except:
-        mc.register_error(error_string="Credentials are invalid", print_error=True)
+        logging.error("Credentials are invalid")
         driver.quit()
         return
 

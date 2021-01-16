@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import io, xlwt, xlrd, os
 import utilities
 import mcutils as mc
+import logging
 
 
 class product:
@@ -89,7 +90,7 @@ def get_sale_prices():
     data = utilities.get_json()
     path = data["precios_compra_venta_file"]
     if not os.path.isfile(path):
-        mc.register_error(error_string="No se ha encontrado el archivo {}".format(path))
+        logging.error("No se ha encontrado el archivo {}".format(path))
         mc.exit_application(enter_quit=True)
 
     workbook = xlrd.open_workbook(path)
@@ -184,7 +185,6 @@ def sort_by_date(order_product_list):
         Week.WEEK_SHIFT = ((monday2 - monday1).days / 7)
         mc.mcprint("WEEK SHIFT: {}".format(Week.WEEK_SHIFT), color=mc.Color.RED)
         selected_date = custom_date
-
 
     filtered_next_week = list(filter(lambda x: (datetime.strftime(x.fecha_entrega, "%W") ==  datetime.strftime(selected_date, "%W")) and
                                      (datetime.strftime(x.fecha_entrega, "%Y") == datetime.strftime(selected_date, "%Y")), sorted_by_date))
@@ -326,8 +326,8 @@ def format_excel_sheet(sorted_data):
     book.save(save_path)
     mc.mcprint(text="output file saved at: {}".format(save_path), color=mc.Color.GREEN)
 
-    dir_manager = mc.Directory_Manager()
-    mf_open_file = mc.Menu_Function("Abrir archivo {}".format(save_path), dir_manager.open_file, *[save_path])
+    dir_manager = mc.DirectoryManager()
+    mf_open_file = mc.MenuFunction(title="Abrir archivo {}".format(save_path), function=dir_manager.open_file, file=save_path)
     mc_open_file = mc.Menu(title="Abrir Archivo?", options=[mf_open_file])
     mc_open_file.show()
 

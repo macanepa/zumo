@@ -4,14 +4,20 @@ import web_driver
 import os, time
 from selenium.webdriver.common.keys import Keys
 from datetime import datetime
+import logging
+import tqdm
 
 def get_credentials():
-    username = mc.get_input(text="rut")
-    password = mc.get_input(text="clave")
+    mc_credentials = mc.Menu(title='Introduzca sus credenciales de SII',
+                             subtitle='Introuzca 0 en cualquier campo  para volver',
+                             options={'rut': [str, '>0'], 'clave': [str, '>0']}, input_each=True)
+    mc_credentials.show()
+    username = mc_credentials.returned_value['rut']
+    password = mc_credentials.returned_value['clave']
     return username, password
 
-def login(driver, rut, password):
 
+def login(driver, rut, password):
         url = "https://www1.sii.cl/cgi-bin/Portal001/mipeLaunchPage.cgi?OPCION=33&TIPO=4"
         driver.get(url)
 
@@ -27,6 +33,7 @@ def login(driver, rut, password):
         # Select second option
         driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/form/div/div[1]/div/div/select/optgroup/option[2]").click()
         driver.find_element_by_xpath("/html/body/div[1]/div[2]/div/form/div/div[2]/button").click()
+
 
 def select_one_order(day_dictionary):
 
@@ -68,6 +75,7 @@ def load_chunks():
 
     return day_dictionary
 
+
 def load_sii(chunk_dictionary, driver):
     set_page(driver)
     # mc.mcprint("\n{}".format(chunk_dictionary), color=mc.Color.CYAN)
@@ -105,8 +113,6 @@ def load_sii(chunk_dictionary, driver):
     rut_field.send_keys(rut_cliente[1])
     rut_field.send_keys(Keys.TAB)
 
-
-
     xpath = "/html/body/div[1]/div[2]/div[1]/div/form/div/div[4]/div[2]/div/div[4]/div/div/select/optgroup/option[8]"
     giro = driver.find_element_by_xpath(xpath)
     giro.click()
@@ -116,7 +122,6 @@ def load_sii(chunk_dictionary, driver):
     contacto_field = driver.find_element_by_xpath(xpath)
     contacto_field.click()
     contacto_field.send_keys(contacto)
-
 
     # click en referencias
     xpath = "/html/body/div[1]/div[2]/div[1]/div/form/div/div[7]/table[2]/tbody/tr[1]/th[1]/input"
@@ -129,7 +134,6 @@ def load_sii(chunk_dictionary, driver):
     oc_button.click()
 
     # folio
-
     xpath = "/html/body/div[1]/div[2]/div[1]/div/form/div/div[7]/table[2]/tbody/tr[3]/td[3]/input"
     folio_field = driver.find_element_by_xpath(xpath)
     folio_field.click()
@@ -172,35 +176,39 @@ def set_page(driver):
         add_button = selection[0]
         add_button.click()
 
+
 def input_credentials():
     while True:
         try:
             rut, password = get_credentials()
+            if rut == '0' or password == '0':
+                return
             driver = web_driver.generate_web_driver()
             login(driver=driver, rut=rut, password=password)
             break
         except:
-            mc.register_error(error_string="Credentials are invalid", print_error=True)
-            mc.mcprint(text="Vuelva a introducir las credenciales", color=mc.Color.YELLOW)
+            logging.error("Credentials are invalid")
+            logging.warning("Vuelva a introducir las credenciales")
             driver.quit()
     return driver
+
 
 def begin():
 
     driver = input_credentials()
-
-    day_dictionary = load_chunks()
-    if day_dictionary == None: return
-    for order, index in zip(day_dictionary, range(len(day_dictionary))):
-        for chunk in day_dictionary[order]:
-            while True:
-                try:
-                    mc.progress_bar(current_index=index, total=range(len(day_dictionary)))
-                    load_sii(chunk_dictionary=day_dictionary[order][chunk], driver=driver)
-                    break
-                except:
-                    mc.clear(10)
-                    mc.register_error(error_string="Ocurrio un error en la subida de la orden [{}]".format(order),
-                                      print_error=True)
-                    mc.mcprint(text="Reintentando en 5 segundos", color=mc.Color.YELLOW)
-                    time.sleep(5)
+    if driver:
+        day_dictionary = load_chunks()
+        if not day_dictionary:
+            return
+        for order in tqdm.tqdm(list(day_dictionary.keys()),
+                               bar_format="{l_bar}%s{bar}%s{r_bar}" % (mc.Color.ORANGE, mc.Color.RESET)):
+            for chunk in day_dictionary[order]:
+                while True:
+                    try:
+                        load_sii(chunk_dictionary=day_dictionary[order][chunk], driver=driver)
+                        break
+                    except:
+                        mc.clear(10)
+                        logging.error("Ocurrió un error en la subida de la orden [{}]".format(order))
+                        logging.info("Reintentando en 5 segundos")
+                        time.sleep(5)

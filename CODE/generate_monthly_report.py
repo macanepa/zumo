@@ -4,6 +4,7 @@ from datetime import datetime
 import xlwt
 import os
 import utilities
+import logging
 
 class output:
     def __init__(self, cod_sap, descripcion, unidad, cantidad, precio_unitario, subtotal, precio_compra, total_precio_compra):
@@ -32,7 +33,8 @@ def format_excel_sheet(data):
         unidad = group[0].unidad
         precio_unitario = group[0].precio_unitario
         precio_compra = group[0].precio_compra
-        if precio_compra == 0: mc.log("No se ha encontrado un precio compra de producto ({}:{})".format(cod_sap, descripcion))
+        if precio_compra == 0:
+            logging.error("No se ha encontrado un precio compra de producto ({}:{})".format(cod_sap, descripcion))
 
         cantidad = sum(map(lambda x: x.cantidad, group))
         subtotal = sum(map(lambda x: x.subtotal, group))
@@ -90,10 +92,10 @@ def format_excel_sheet(data):
     file_name = datetime.strftime(current_time, "month output %d%m%Y %H%M%S.xls")
     save_path = os.path.join(utilities.get_json()["output_directory"], file_name)
     book.save(save_path)
-    mc.mcprint(text="output file saved at: {}".format(save_path), color=mc.Color.GREEN)
+    logging.info("output file saved at: {}".format(save_path))
 
-    dir_manager = mc.Directory_Manager()
-    mf_open_file = mc.Menu_Function("Abrir archivo {}".format(save_path), dir_manager.open_file, *[save_path])
+    dir_manager = mc.DirectoryManager()
+    mf_open_file = mc.MenuFunction("Abrir archivo {}".format(save_path), dir_manager.open_file, file=save_path)
     mc_open_file = mc.Menu(title="Abrir Archivo?", options=[mf_open_file])
     mc_open_file.show()
 

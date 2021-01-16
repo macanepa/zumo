@@ -39,9 +39,10 @@ def get_draft_urls(driver):
 def begin():
 
     driver = upload_sii.input_credentials()
-    draft_urls = get_draft_urls(driver)
-    for draft_url, index in zip(draft_urls, range(len(draft_urls))):
-        mc.progress_bar(current_index=index, total=range(len(draft_urls)))
-        remove_draft(driver, draft_url)
-    # driver.quit()
-    mc.mcprint(text="Se han eliminado todos los borradores", color=mc.Color.YELLOW)
+    if driver:
+        draft_urls = get_draft_urls(driver)
+        for draft_url, index in zip(draft_urls, range(len(draft_urls))):
+            mc.progress_bar(current_index=index, total=range(len(draft_urls)))
+            remove_draft(driver, draft_url)
+        # driver.quit()
+        mc.mcprint(text="Se han eliminado todos los borradores", color=mc.Color.YELLOW)
