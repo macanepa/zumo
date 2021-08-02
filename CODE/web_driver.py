@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 import sys, os, time
 import utilities
 import mcutils as mc
+import logging
 
 
 def generate_web_driver():
@@ -15,12 +17,7 @@ def generate_web_driver():
     # chrome_options.add_argument('--headless')
     # chrome_options.add_argument('--disable-gpu')
 
-
-    if getattr(sys, 'frozen', False):
-        chromedriver_path = os.path.join(sys._MEIPASS, "chromedriver.exe")
-        driver = webdriver.Chrome(options=chrome_options, executable_path=chromedriver_path)
-    else:
-        driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Chrome(options=chrome_options, executable_path=ChromeDriverManager().install())
 
     # driver.set_window_size(480, 320)
     return driver

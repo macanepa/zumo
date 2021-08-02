@@ -39,12 +39,8 @@ def download_update():
     mf_download_zumo_update = mc.MenuFunction(title='Descargar Actualización de ZUMO',
                                               function=webbrowser.open,
                                               url="https://github.com/macanepa/zumo/releases")
-    mf_download_chromedriver_update = mc.MenuFunction(title='Descargar Actualización de Chrome Driver',
-                                                       function=webbrowser.open,
-                                                       url='https://chromedriver.chromium.org/downloads')
 
-    mc_updates = mc.Menu(title='Descargar Actualizaciones', options=[mf_download_zumo_update,
-                                                                     mf_download_chromedriver_update])
+    mc_updates = mc.Menu(title='Descargar Actualizaciones', options=[mf_download_zumo_update])
 
     mc_updates.show()
 
