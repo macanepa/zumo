@@ -2,9 +2,10 @@ import mcutils as mc
 import utilities
 import web_driver, upload_sii
 import os, time
+import tqdm
 
 def remove_draft(driver, url):
-    sleep_time = 0.1
+    sleep_time = 0.5
     driver.get(url)
     time.sleep(sleep_time)
     delete_button = driver.find_element_by_name("Button_Delete_Borrador")
@@ -41,8 +42,6 @@ def begin():
     driver = upload_sii.input_credentials()
     if driver:
         draft_urls = get_draft_urls(driver)
-        for draft_url, index in zip(draft_urls, range(len(draft_urls))):
-            mc.progress_bar(current_index=index, total=range(len(draft_urls)))
+        for draft_url in tqdm.tqdm(draft_urls):
             remove_draft(driver, draft_url)
-        # driver.quit()
         mc.mcprint(text="Se han eliminado todos los borradores", color=mc.Color.YELLOW)

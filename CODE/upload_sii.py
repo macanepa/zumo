@@ -113,7 +113,7 @@ def load_sii(chunk_dictionary, driver):
     rut_field.send_keys(rut_cliente[1])
     rut_field.send_keys(Keys.TAB)
 
-    xpath = "/html/body/div[1]/div[2]/div[1]/div/form/div/div[4]/div[2]/div/div[4]/div/div/select/optgroup/option[8]"
+    xpath = "/html/body/div[1]/div[2]/div[1]/div/form/div/div[4]/div[2]/div/div[4]/div/div/select/optgroup/option[7]"
     giro = driver.find_element_by_xpath(xpath)
     giro.click()
 

@@ -7,14 +7,21 @@ import mcutils as mc
 import logging
 
 
-def generate_web_driver():
+def generate_web_driver(headless: bool = False):
     download_directory = utilities.get_json()["downloads_directory"]
     chrome_options = webdriver.ChromeOptions()
     prefs = {'download.default_directory': '{}'.format(download_directory)}
     chrome_options.add_experimental_option('prefs', prefs)
 
+    #chrome_options.add_argument('--remote-debugging-port=0')
+    chrome_options.add_argument('--remote-debugging-port=9222')
+    chrome_options.add_argument('--remote-debugging-host=0.0.0.0')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--no-sandbox')
+
     # chrome_options.add_argument("--window-size=240,320")
-    # chrome_options.add_argument('--headless')
+    if headless:
+        chrome_options.add_argument('--headless')
     # chrome_options.add_argument('--disable-gpu')
 
     driver = webdriver.Chrome(options=chrome_options, executable_path=ChromeDriverManager().install())
@@ -41,10 +48,25 @@ def input_field(driver, id, value):
     field.click()
     field.send_keys(value)
 
+
 def calculate_date():
     date = (datetime.now().date().replace(day=1) - timedelta(days=1))
     date = date.replace(day=1)
     return date.strftime("%d-%m-%Y")
+
+
+def wait_for_download(original_count: int):
+    download_directory = utilities.get_json()["downloads_directory"]
+    timeout = 5
+    while timeout > 0:
+        time.sleep(0.5)
+        if original_count != len(os.listdir(download_directory)):
+            logging.info('Download completed')
+            return
+        timeout -= 1
+        time.sleep(4.5)
+    logging.error('Timeout error. excel file didn\t download successfully')
+
 
 def get_excel(fecha_desde=None):
 
@@ -55,7 +77,7 @@ def get_excel(fecha_desde=None):
 
     # Head to website
     url = "https://sodexo.iconstruye.com/"
-    driver = generate_web_driver()
+    driver = generate_web_driver(headless=True)
     driver.get(url)
     # Login
     input_field(driver=driver, id="txtUsuario", value=username)
@@ -91,13 +113,14 @@ def get_excel(fecha_desde=None):
     try:
         driver.switch_to.alert.accept()
     except Exception:
-        None
+        logging.warning('Alert element was not found')
 
 
     excel_download_button = driver.find_element_by_id("lnkExcel")
+    
+    download_directory = utilities.get_json()["downloads_directory"]
+    original_count = len(os.listdir(download_directory))
     excel_download_button.click()
-    # driver.minimize_window()
-    # mc.get_input("Presione Enter para finalizar...", color=mc.Color.CYAN)
-    # use quit() to close all windows
-    # driver.quit()
+    wait_for_download(original_count)
+    driver.quit()
 
